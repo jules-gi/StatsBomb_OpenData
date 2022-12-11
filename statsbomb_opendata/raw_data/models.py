@@ -35,6 +35,8 @@ class Season(AbstractStatsBombModel):
 
 class CompetitionEdition(AbstractStatsBombModel):
 
+    statsbomb_id: models.PositiveSmallIntegerField = models.PositiveSmallIntegerField(null=True)
+
     competition: models.ForeignKey = models.ForeignKey(to=Competition, on_delete=models.SET_NULL, null=True)
     season: models.ForeignKey = models.ForeignKey(to=Season, on_delete=models.SET_NULL, null=True)
     country: CountryField = CountryField()
@@ -57,23 +59,23 @@ class CompetitionEdition(AbstractStatsBombModel):
 
 
 class Manager(AbstractStatsBombModel):
-    nickname: models.CharField = models.CharField(max_length=128)
-    dob: models.DateField = models.DateField()
-    country: CountryField = CountryField()
+    nickname: models.CharField = models.CharField(max_length=128, null=True)
+    dob: models.DateField = models.DateField(null=True)
+    country: CountryField = CountryField(null=True)
 
 
 class Referee(AbstractStatsBombModel):
-    country: CountryField = CountryField()
+    country: CountryField = CountryField(null=True)
 
 
 class Stadium(AbstractStatsBombModel):
-    country: CountryField = CountryField()
+    country: CountryField = CountryField(null=True)
 
 
 class Team(AbstractStatsBombModel):
 
     gender: models.CharField = models.CharField(max_length=1, choices=[('M', 'Men'), ('W', 'Women')])
-    country: CountryField = CountryField()
+    country: CountryField = CountryField(null=True)
 
 
 class Game(AbstractStatsBombModel):
@@ -82,9 +84,9 @@ class Game(AbstractStatsBombModel):
     home_team: models.ForeignKey = models.ForeignKey(to=Team, related_name='home_games', on_delete=models.SET_NULL, null=True)
     away_team: models.ForeignKey = models.ForeignKey(to=Team, related_name='away_games', on_delete=models.SET_NULL, null=True)
     
-    kick_off: models.DateTimeField = models.DateTimeField(null=False)
-    match_week: models.PositiveSmallIntegerField = models.PositiveSmallIntegerField(null=False)
-    competition_stage: models.CharField = models.CharField(max_length=100)
+    kick_off: models.DateTimeField = models.DateTimeField()
+    match_week: models.PositiveSmallIntegerField = models.PositiveSmallIntegerField(null=True)
+    competition_stage: models.CharField = models.CharField(max_length=100, null=True)
     stadium: models.ForeignKey = models.ForeignKey(to=Stadium, on_delete=models.SET_NULL, null=True)
     referee: models.ForeignKey = models.ForeignKey(to=Referee, on_delete=models.SET_NULL, null=True)
     home_manager: models.ForeignKey = models.ForeignKey(to=Manager, related_name='home_games', on_delete=models.SET_NULL, null=True)
