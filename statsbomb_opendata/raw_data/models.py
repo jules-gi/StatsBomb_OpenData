@@ -14,7 +14,7 @@ class AbstractStatsBombModel(models.Model):
         abstract = True
     
     def __repr__(self) -> str:
-        return f'[{self.id}] {self.__class__.__name__}'
+        return f'{self.__class__.__name__} object [{self.id}]'
 
 
 class Competition(AbstractStatsBombModel):
@@ -63,19 +63,31 @@ class Manager(AbstractStatsBombModel):
     dob: models.DateField = models.DateField(null=True)
     country: CountryField = CountryField(null=True)
 
+    def __str__(self) -> str:
+        return self.nickname if self.nickname else self.name
+
 
 class Referee(AbstractStatsBombModel):
     country: CountryField = CountryField(null=True)
 
+    def __str__(self) -> str:
+        return self.name
+
 
 class Stadium(AbstractStatsBombModel):
     country: CountryField = CountryField(null=True)
+
+    def __str__(self) -> str:
+        return self.name
 
 
 class Team(AbstractStatsBombModel):
 
     gender: models.CharField = models.CharField(max_length=1, choices=[('M', 'Men'), ('W', 'Women')])
     country: CountryField = CountryField(null=True)
+
+    def __str__(self) -> str:
+        return self.name
 
 
 class Game(AbstractStatsBombModel):
