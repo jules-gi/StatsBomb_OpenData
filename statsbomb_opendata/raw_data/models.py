@@ -1,20 +1,7 @@
-import uuid
 from django.db import models
-
 from django_countries.fields import CountryField
 
-
-class AbstractStatsBombModel(models.Model):
-
-    id: models.UUIDField = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name: models.CharField = models.CharField(max_length=128)
-    statsbomb_id: models.PositiveSmallIntegerField = models.PositiveSmallIntegerField(unique=True)
-
-    class Meta:
-        abstract = True
-    
-    def __repr__(self) -> str:
-        return f'{self.__class__.__name__} object [{self.id}]'
+from raw_data.abstracts import AbstractStatsBombModel
 
 
 class Competition(AbstractStatsBombModel):
@@ -59,6 +46,7 @@ class CompetitionEdition(AbstractStatsBombModel):
 
 
 class Manager(AbstractStatsBombModel):
+
     nickname: models.CharField = models.CharField(max_length=128, null=True)
     dob: models.DateField = models.DateField(null=True)
     country: CountryField = CountryField(null=True)
@@ -68,6 +56,7 @@ class Manager(AbstractStatsBombModel):
 
 
 class Referee(AbstractStatsBombModel):
+
     country: CountryField = CountryField(null=True)
 
     def __str__(self) -> str:
@@ -75,6 +64,7 @@ class Referee(AbstractStatsBombModel):
 
 
 class Stadium(AbstractStatsBombModel):
+
     country: CountryField = CountryField(null=True)
 
     def __str__(self) -> str:

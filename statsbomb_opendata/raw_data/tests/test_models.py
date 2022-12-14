@@ -5,6 +5,7 @@ from django.test import TestCase
 from raw_data.models import (
     Competition, CompetitionEdition, Game, Manager, Referee, Season, Stadium, Team
 )
+from raw_data.abstracts import AbstractStatsBombModel
 
 
 class BaseModelTestCase(TestCase):
@@ -111,6 +112,103 @@ class BaseModelTestCase(TestCase):
             statsbomb_id=9
         )
         cls.game.save()
+
+
+class AbstractStatsBombModelTestCase(TestCase):
+
+    def test_populate_attr(self) -> None:
+
+        obj = Competition()
+        self.assertIsInstance(obj, AbstractStatsBombModel)
+        
+        # Wrong attribute name.
+        self.assertFalse(obj.is_youth)
+        self.assertRaisesMessage(
+            AttributeError,
+            "'Competition' object has no attribute 'wrong_value'.",
+            obj._populate_attr,
+            data={'youth': True},
+            attr_name='wrong_value',
+            key_list=['youth']
+        )
+        self.assertFalse(obj.is_youth)
+
+        # Wrong key.
+        self.assertRaisesMessage(
+            KeyError,
+            "Key 'wrong_value' was not found to populate 'Competition' object.",
+            obj._populate_attr,
+            data={'youth': True},
+            attr_name='is_youth',
+            key_list=['wrong_value']
+        )
+        self.assertFalse(obj.is_youth)
+
+        # Wrong attribute mapping
+        self.assertRaisesMessage(
+            KeyError,
+            "Key 'key1' was not found to populate 'Competition' object.",
+            obj._populate_attr,
+            data={'youth': True},
+            attr_name='is_youth',
+            key_list=['key1', 'key2', 'youth']
+        )
+        self.assertRaisesMessage(
+            KeyError,
+            "Key 'youth' was not found to populate 'Competition' object.",
+            obj._populate_attr,
+            data={'key1': {'key2': {'youth': True}}},
+            attr_name='is_youth',
+            key_list=['youth']
+        )
+
+        # TODO: Test type value.
+        
+        # Ideal case.
+        obj._populate_attr(
+            data={'youth': True},
+            attr_name='is_youth',
+            key_list=['youth']
+        )
+        self.assertTrue(obj.is_youth)
+
+        # Ideal nested case.
+        self.assertFalse(obj.is_women)
+        obj._populate_attr(
+            data={'key1': {'key2': {'women': True}}},
+            attr_name='is_women',
+            key_list=['key1', 'key2', 'women']
+        )
+        self.assertTrue(obj.is_women)        
+
+    def test_populate(self) -> None:
+
+        # Check initial state.
+        obj = Competition()
+        self.assertIsInstance(obj, AbstractStatsBombModel)
+        self.assertFalse(obj.is_youth)
+        self.assertFalse(obj.is_women)
+        self.assertFalse(obj.is_international)
+
+        # Ideal case.
+        obj = Competition()
+        obj.populate(
+            data={
+                'youth': True,
+                'attr': {
+                    'international': True,
+                    'gender': {'women': True}
+                }
+            },
+            attr_key_mapping=[
+                ('is_youth', ['youth']),
+                ('is_women', ['attr', 'gender', 'women']),
+                ('is_international', ['attr', 'international']),
+            ]
+        )
+        self.assertTrue(obj.is_youth)
+        self.assertTrue(obj.is_women)
+        self.assertTrue(obj.is_international)
 
 
 class CompetitionTestCase(BaseModelTestCase):
